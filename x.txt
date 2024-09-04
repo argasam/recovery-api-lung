@@ -1,0 +1,11 @@
+{
+    "filename": "04424061-bd1b8b80-9d048a50-886488a5-ff1d3ba4.dcm",
+    "date": "2024-08-01 21:54:48.484064",
+    "orthanc_response": {
+        "ID": "4ab8202f-8b009624-92b771e6-88d4af39-296ab55c",
+        "ParentPatient": "b5939c3e-1b6c833a-5c6cc4d0-37d77c50-da50f227",
+        "ParentSeries": "9c2223ae-900a5042-4865ebee-b658e75e-029f7fda",
+        "ParentStudy": "80e56e79-bf1c5634-935c8b99-d5c26909-5a472e05",
+        "Path": "/instances/4ab8202f-8b009624-92b771e6-88d4af39-296ab55c",
+        "Status": "Success"
+}

@@ -12,20 +12,23 @@ from pydicom.dataset import Dataset
 from pydicom.uid import generate_uid
 
 ## local
-from model.model import preprocess_image
-from imageConversion.dicomToJpg import preprocess_dicom_to_jpg
-from imageConversion.structuredReport import create_structured_report
-from orthancConnection.orthancUpload import upload_to_orthanc
+# from app.model.model import preprocess_image
+from app.imageConversion.dicomToJpg import preprocess_dicom_to_jpg
+from app.imageConversion.structuredReport import create_structured_report
+from app.orthancConnection.orthancUpload import upload_to_orthanc
+from app.connectAPI.connectAPI import query_llava_api
 
 app = FastAPI()
 
 # Load Secrets from JSON    
-with open("secrets.json") as f:
+with open("app/secrets.json") as f:
     secrets = json.load(f)
 
 ORTHANC_URL = secrets["ORTHANC_URL"]
 ORTHANC_USERNAME = secrets["ORTHANC_USERNAME"]
 ORTHANC_PASSWORD = secrets["ORTHANC_PASSWORD"]
+LLAVA_URL = secrets["LLAVA_URL"]
+prompt = "This is an image of CXR, What part of the body on the image? What the disease the image? and what part of the image information indicated the disease?"
 
 @app.get("/")
 async def root():
@@ -53,9 +56,8 @@ async def predict(file: UploadFile = File(...)):
     img.save(img_bytes, format='JPEG')
     img_bytes.seek(0)
 
-    prediction = preprocess_image(img_bytes)
-    class_label = 'Pneumonia' if prediction > 0.5 else 'Normal'
-    confidence = float(prediction) if class_label == 'Pneumonia' else float(1 - prediction)
+    # Prediction with External ML
+    report = await query_llava_api(img_bytes, prompt)
 
     dataset.ContentDate = "20220101"
     dataset.ContentTime = "120000"
@@ -64,7 +66,7 @@ async def predict(file: UploadFile = File(...)):
     dataset.is_little_endian = True
     dataset.is_implicit_VR = True
 
-    sr = create_structured_report(dataset, class_label, confidence)
+    sr = create_structured_report(dataset, report)
 
     dicom_file = io.BytesIO()
     sr.save_as(dicom_file)
@@ -75,10 +77,7 @@ async def predict(file: UploadFile = File(...)):
 
     response = JSONResponse(content={
         "filename": file.filename,
-        "prediction": class_label,
-        "confidence": confidence,
         "date": date_now,
-        # "structured_report": sr_json,
         "orthanc_response": orthanc_response
     })
 

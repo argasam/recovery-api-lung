@@ -3,7 +3,7 @@ import json
 from io import BytesIO
 
 # Load Secrets from JSON    
-with open("secrets.json") as f:
+with open("app/secrets.json") as f:
     secrets = json.load(f)
 
 ORTHANC_URL = secrets["ORTHANC_URL"]

@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  lung_detection:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    networks:
+      - orthanc_orthanc-net
+
+networks:
+  orthanc_orthanc-net:
+    external: true
